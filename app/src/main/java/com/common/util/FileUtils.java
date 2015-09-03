@@ -2,13 +2,9 @@ package com.common.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 
-import com.alibaba.fastjson.JSON;
 import com.stickercamera.App;
-import com.stickercamera.app.model.Addon;
 import com.stickercamera.app.model.PhotoItem;
 
 import java.io.BufferedReader;
@@ -20,16 +16,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class FileUtils {
 
-    private static String    BASE_PATH;
-    private static String    STICKER_BASE_PATH;
+    private static String BASE_PATH;
+    private static String STICKER_BASE_PATH;
 
     private static FileUtils mInstance;
 
@@ -50,6 +43,7 @@ public class FileUtils {
 
     /**
      * 获取文件夹大小
+     *
      * @param file File实例
      * @return long 单位为K
      * @throws Exception
@@ -85,6 +79,7 @@ public class FileUtils {
         String md5Str = MD5Util.getMD5(imageUrl).replace("-", "mm");
         return getBasePath(packageId) + md5Str;
     }
+
     //读取assets文件
     public String readFromAsset(String fileName) {
         InputStream is = null;
@@ -153,7 +148,7 @@ public class FileUtils {
         //如果没SD卡则放缓存
         if (Environment.MEDIA_MOUNTED.equals(sdcardState)) {
             BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
-                        + "/stickercamera/";
+                    + "/stickercamera/";
         } else {
             BASE_PATH = App.getApp().getCacheDirPath();
         }
@@ -269,8 +264,8 @@ public class FileUtils {
         return of.exists() && !nf.exists() && of.renameTo(nf);
     }
 
-    /**  
-     * 复制单个文件  
+    /**
+     * 复制单个文件
      */
     public void copyFile(String oldPath, String newPath) {
         InputStream inStream = null;

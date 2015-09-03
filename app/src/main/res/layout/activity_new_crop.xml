@@ -8,13 +8,8 @@
     <com.customview.CommonTitleBar
         android:id="@+id/title_layout"
         style="@style/head_default"
-        app:titleTxt="裁剪相片" />
+        app:titleTxt="图像处理" />
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/crop_bg" />
 
     <RelativeLayout
         android:id="@+id/draw_area"
@@ -34,6 +29,7 @@
                 android:layout_gravity="center"
                 android:scaleType="fitCenter" />
         </LinearLayout>
+
         <com.imagezoom.ImageViewTouch
             android:id="@+id/crop_image"
             android:layout_width="match_parent"
@@ -42,22 +38,50 @@
 
 
     </RelativeLayout>
-
     <RelativeLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="200px"
+        >
+        <ImageView
+            android:id="@+id/image_left"
+            android:layout_width="200px"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_crop_selector"
+            android:layout_alignParentLeft="true"/>
+
+        <ImageView
+            android:id="@+id/image_middle"
+            android:layout_width="200px"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_crop_selector"
+            android:layout_centerInParent="true"/>
+        <ImageView
+            android:id="@+id/image_right"
+            android:layout_width="200px"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_crop_selector"
+            android:layout_alignParentRight="true"/>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:background="@color/crop_bg" >
-        
-        <ImageView
-            android:id="@+id/btn_crop_type"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+        >
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:layout_margin="20dp"
+            android:gravity="center"
             android:layout_centerInParent="true"
-            android:src="@drawable/btn_crop_selector" />
+            />
         <TextView 
             android:id="@+id/cancel"
-            android:text="取消"
+            android:text="返回"
             android:textSize="24sp"
             android:textColor="@color/white"
             android:layout_margin="20dp"
@@ -65,10 +89,10 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/btn_crop_type"/>
-        <TextView 
+            android:layout_toLeftOf="@id/result"/>
+        <TextView
             android:id="@+id/picked"
-            android:text="选取"
+            android:text="处理"
             android:textSize="24sp"
             android:layout_margin="20dp"
             android:textColor="@color/white"
@@ -76,7 +100,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@id/btn_crop_type"/>
+            android:layout_toRightOf="@id/result"/>
     </RelativeLayout>
 
 </LinearLayout>

@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.common.util.FileUtils;
 import com.common.util.IOUtil;
 import com.common.util.ImageUtils;
+import com.common.util.SystemUtils;
 import com.github.skykai.stickercamera.R;
 import com.imagezoom.ImageViewTouch;
 import com.stickercamera.App;
@@ -46,8 +47,9 @@ public class CropPhotoActivity extends CameraBaseActivity {
     private static final boolean IN_MEMORY_CROP = Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1;
     private Uri fileUri;
     private Bitmap oriBitmap;
+    private Bitmap littleBitmap;
     private int initWidth, initHeight;
-    private static final int MAX_WRAP_SIZE  = 2048;
+    private static final int MAX_WRAP_SIZE = 2048;
 
     @InjectView(R.id.crop_image)
     ImageViewTouch cropImage;
@@ -55,10 +57,14 @@ public class CropPhotoActivity extends CameraBaseActivity {
     ViewGroup drawArea;
     @InjectView(R.id.wrap_image)
     View wrapImage;
-    @InjectView(R.id.btn_crop_type)
-    View btnCropType;
     @InjectView(R.id.image_center)
     ImageView imageCenter;
+    @InjectView(R.id.image_left)
+    ImageView imageLeft;
+    @InjectView(R.id.image_middle)
+    ImageView imageMiddle;
+    @InjectView(R.id.image_right)
+    ImageView imageRight;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,37 +73,26 @@ public class CropPhotoActivity extends CameraBaseActivity {
         setContentView(R.layout.activity_new_crop);
         ButterKnife.inject(this);
         fileUri = getIntent().getData();
+        System.out.println(fileUri);
         initView();
         initEvent();
     }
 
     private void initEvent() {
-        btnCropType.setOnClickListener(v -> {
-            if (cropImage.getVisibility() == View.VISIBLE) {
-                btnCropType.setSelected(true);
-                cropImage.setVisibility(View.GONE);
-                wrapImage.setVisibility(View.VISIBLE);
-            } else {
-                btnCropType.setSelected(false);
-                cropImage.setVisibility(View.VISIBLE);
-                wrapImage.setVisibility(View.GONE);
-            }
-        });
         imageCenter.setOnClickListener(v -> wrapImage.setSelected(!wrapImage.isSelected()));
         findViewById(R.id.cancel).setOnClickListener(v -> finish());
         findViewById(R.id.picked).setOnClickListener(v -> {
             showProgressDialog("图片处理中...");
             new Thread() {
                 public void run() {
-                    if (btnCropType.isSelected()) {
-                        wrapImage();
-                    } else {
-                        cropImage();
-                    }
+                    cropImage();
                     dismissProgressDialog();
-                };
+                }
+
+                ;
             }.start();
         });
+
     }
 
 
@@ -105,7 +100,7 @@ public class CropPhotoActivity extends CameraBaseActivity {
         int width = initWidth > initHeight ? initWidth : initHeight;
         int imageSize = width < MAX_WRAP_SIZE ? width : MAX_WRAP_SIZE;
 
-        int move =  (int)((initHeight - initWidth) / 2 / (float)width * (float)imageSize);
+        int move = (int) ((initHeight - initWidth) / 2 / (float) width * (float) imageSize);
         int moveX = initWidth < initHeight ? move : 0;
         int moveY = initHeight < initWidth ? -move : 0;
         Bitmap croppedImage = null;
@@ -134,11 +129,15 @@ public class CropPhotoActivity extends CameraBaseActivity {
             double rate = ImageUtils.getImageRadio(getContentResolver(), fileUri);
             oriBitmap = ImageUtils.decodeBitmapWithOrientationMax(fileUri.getPath(), App.getApp().getScreenWidth(), App.getApp().getScreenHeight());
 
+            littleBitmap = ImageUtils.getResizedBitmap(this, fileUri, 200, 200);
             initWidth = oriBitmap.getWidth();
             initHeight = oriBitmap.getHeight();
 
             cropImage.setImageBitmap(oriBitmap, new Matrix(), (float) rate, 10);
             imageCenter.setImageBitmap(oriBitmap);
+            imageLeft.setImageBitmap(littleBitmap);
+            imageMiddle.setImageBitmap(littleBitmap);
+            imageRight.setImageBitmap(littleBitmap);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -157,6 +156,7 @@ public class CropPhotoActivity extends CameraBaseActivity {
                 croppedImage = inMemoryCrop(cropImage);
             }
         }
+
         saveImageToCache(croppedImage);
     }
 
@@ -168,6 +168,7 @@ public class CropPhotoActivity extends CameraBaseActivity {
                 Intent i = new Intent();
                 i.setData(Uri.parse("file://" + FileUtils.getInst().getCacheDir()
                         + "/croppedcache"));
+
                 setResult(RESULT_OK, i);
                 dismissProgressDialog();
                 finish();
@@ -211,6 +212,12 @@ public class CropPhotoActivity extends CameraBaseActivity {
                 / Math.min((float) initWidth, (float) initHeight);
     }
 
+    /**
+     * 裁剪成宽高相等的图片
+     *
+     * @param cropImage
+     * @return
+     */
     private Bitmap inMemoryCrop(ImageViewTouch cropImage) {
         int width = initWidth > initHeight ? initHeight : initWidth;
         int screenWidth = App.getApp().getScreenWidth();

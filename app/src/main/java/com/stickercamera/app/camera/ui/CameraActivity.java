@@ -1,6 +1,8 @@
 package com.stickercamera.app.camera.ui;
 
+
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,13 +11,17 @@ import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -35,6 +41,7 @@ import com.common.util.ImageUtils;
 import com.common.util.StringUtils;
 import com.customview.CameraGrid;
 import com.github.skykai.stickercamera.R;
+import com.soundcloud.android.crop.Crop;
 import com.stickercamera.App;
 import com.stickercamera.AppConstants;
 import com.stickercamera.app.camera.CameraBaseActivity;
@@ -270,11 +277,22 @@ public class CameraActivity extends CameraBaseActivity {
                     new PhotoItem(result.getData().getPath(), System
                             .currentTimeMillis()));
         } else if (requestCode == AppConstants.REQUEST_CROP && resultCode == RESULT_OK) {
-            Intent newIntent = new Intent(this, PhotoProcessActivity.class);
-            newIntent.setData(result.getData());
+            //            Intent newIntent = new Intent(this, PhotoProcessActivity.class);
+            Intent newIntent = new Intent(this, CropPhotoActivity.class);
+            newIntent.setData(result.getExtras().getParcelable(MediaStore.EXTRA_OUTPUT));
             startActivity(newIntent);
         }
+
     }
+
+    private void handleCrop(int resultCode, Intent result) {
+        if (resultCode == RESULT_OK) {
+//            resultView.setImageURI(Crop.getOutput(result));
+        } else if (resultCode == Crop.RESULT_ERROR) {
+            Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     /**
      * 两点的距离
@@ -389,7 +407,7 @@ public class CameraActivity extends CameraBaseActivity {
 
             if (StringUtils.isNotEmpty(result)) {
                 dismissProgressDialog();
-                    CameraManager.getInst().processPhotoItem(CameraActivity.this,
+                                   CameraManager.getInst().processPhotoItem(CameraActivity.this,
                             new PhotoItem(result, System.currentTimeMillis()));
             } else {
                 toast("拍照失败，请稍后重试！", Toast.LENGTH_LONG);
